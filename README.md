@@ -1,3 +1,13 @@
+AnySDK
+============
+需要手动修改 Cocos2d-x 3.0 中 cocos2d/cocos/platform/android/javaactivity.cpp 
+//jint JNI_OnLoad(JavaVM *vm, void *reserved)
+//{
+//    JniHelper::setJavaVM(vm);
+//
+//    return JNI_VERSION_1_4;
+//}
+===========================================
 EarthWarrior3D
 ======
 
