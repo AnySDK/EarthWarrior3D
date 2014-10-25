@@ -77,7 +77,7 @@ def do_build(cocos_root, ndk_root, app_android_root,ndk_build_param,sdk_root,and
     if platform == 'win32':
         ndk_module_path = 'NDK_MODULE_PATH=%s;%s/external;%s/cocos' % (cocos_root, cocos_root, cocos_root)
     else:
-        ndk_module_path = 'NDK_MODULE_PATH=%s:%s/external:%s/cocos' % (cocos_root, cocos_root, cocos_root)
+        ndk_module_path = 'NDK_MODULE_PATH=%s:%s:%s/external:%s/cocos' % ("./",cocos_root, cocos_root, cocos_root)
 	
     num_of_cpu = get_num_of_cpu()
 	
