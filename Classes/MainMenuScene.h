@@ -49,16 +49,20 @@ private:
     void startgame(cocos2d::Ref* sender);
     void license(cocos2d::Ref* sender);
     void credits(cocos2d::Ref* sender);
+    void recharge(cocos2d::Ref* sender);
     Plane* plane;
     float pRate;
+    bool bReady;
     void startgame_callback();
     void license_callback();
     void credits_callback();
+    void recharge_callback();
     
 private:
     MenuItemSprite* startgame_item;
     MenuItemSprite* license_item;
     MenuItemSprite* credits_item;
+    MenuItemSprite* recharge_item;
 
 };
 
