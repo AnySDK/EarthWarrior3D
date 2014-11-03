@@ -59,6 +59,7 @@ bool MainMenuScene::init()
     }
 	
 	pRate = 3.1415926/2;
+	bReady = false;
 
     // Music By Matthew Pable (http://www.matthewpablo.com/)
     // Licensed under CC-BY 3.0 (http://creativecommons.org/licenses/by/3.0/)
@@ -135,6 +136,13 @@ bool MainMenuScene::init()
     license_item = MenuItemSprite::create(license_normal, license_pressed, CC_CALLBACK_1(MainMenuScene::license, this));
     license_item->setPosition(visibleSize.width/2-200,100);
     license_item->setScale(0.7);
+    
+    //************* recharge *******************
+    auto recharge_normal=Sprite::createWithSpriteFrameName("recharge.png");
+    auto recharge_pressed=Sprite::createWithSpriteFrameName("recharge.png");
+    recharge_item = MenuItemSprite::create(recharge_normal, recharge_pressed, CC_CALLBACK_1(MainMenuScene::recharge, this));
+    recharge_item->setPosition(visibleSize.width/2,100);
+    recharge_item->setScale(0.7);
 
     //************* credits ******************
     auto credits_normal=Sprite::createWithSpriteFrameName("credits.png");
@@ -144,7 +152,7 @@ bool MainMenuScene::init()
     credits_item->setScale(0.7);
 
     //************* Menu ******************
-    auto menu = Menu::create(startgame_item,license_item,credits_item, NULL);
+    auto menu = Menu::create(startgame_item,license_item,recharge_item,credits_item, NULL);
     menu->setPosition(origin);
     this->addChild(menu,3);
     
@@ -198,7 +206,7 @@ void MainMenuScene::update(float dt){
     pRate+=0.01;
     plane->setPosition3D(Vec3(visible_size_macro.width/2+50,480-20*sin(1.05*pRate),0));
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    if(PluginChannel::getInstance()->isLogined())//判断登陆状态
+    if(PluginChannel::getInstance()->isLogined()&&bReady)//判断登陆状态
     {
         CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
         GameLayer::isDie=false;
@@ -222,6 +230,7 @@ void MainMenuScene::startgame_callback()
     CCLOG("login");
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
      CCLOG("PluginChannel");
+     bReady = true;
     PluginChannel::getInstance()->login();//调用渠道登陆
 #else
     CCLOG("startgame_callback");
@@ -233,7 +242,23 @@ void MainMenuScene::startgame_callback()
 #endif
     
 }
+void MainMenuScene::recharge(Ref* sender){
+    recharge_item->runAction(Sequence::create(ScaleTo::create(0.1f, 0.8f),
+                                             ScaleTo::create(0.1f, 0.6f),
+                                             ScaleTo::create(0.1f, 0.7f),
+                                             CallFunc::create(CC_CALLBACK_0(MainMenuScene::recharge_callback, this)),NULL));
+}
 
+void MainMenuScene::recharge_callback()
+{
+    CCLOG("recharge");
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    CCLOG("PluginChannel");
+    PluginChannel::getInstance()->payment();//调用渠道支付
+#else
+
+#endif
+}
 void MainMenuScene::credits(Ref* sender){
     credits_item->runAction(Sequence::create(ScaleTo::create(0.1f, 0.8f),
                                                ScaleTo::create(0.1f, 0.6f),

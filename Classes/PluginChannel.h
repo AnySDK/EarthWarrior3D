@@ -17,27 +17,41 @@
 using namespace std;
 using namespace anysdk::framework;
 
-class PluginChannel: public UserActionListener
+class PluginChannel: public PayResultListener,public UserActionListener
 {
 public:
     static PluginChannel* getInstance();
     static void purge();
     
+    //初始化插件
     void loadPlugins();
     
+    //卸载插件
     void unloadPlugins();
     
+    //登录函数
     void login();
     
+    //获取登录状态
     bool isLogined();
     
-    
+    //用户系统回调
     virtual void onActionResult(ProtocolUser* pPlugin, UserActionResultCode code, const char* msg);
     
     //获取用户唯一标识符，进行游戏端登陆
     std::string getUserId();
 
+    //支付
+    void payment();
     
+   	//支付回调函数
+    virtual void onPayResult(PayResultCode ret, const char* msg, TProductInfo info);
+
+
+
+    //获取渠道id
+    std::string getChannelId();
+
 private:
     PluginChannel();
     virtual ~ PluginChannel();

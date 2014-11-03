@@ -28,13 +28,14 @@ LOCAL_SRC_FILES := hellocpp/main.cpp \
                    ../../Classes/LicenseLayer.cpp   \
                    ../../Classes/PluginChannel.cpp 
                    
-
+#导入头文件
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes \
        			$(LOCAL_PATH)/../protocols/android	\
        			$(LOCAL_PATH)/../protocols/include
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dx_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cocosdenshion_static
+#加载整个静态库
 LOCAL_WHOLE_STATIC_LIBRARIES += PluginProtocolStatic
 
 # LOCAL_WHOLE_STATIC_LIBRARIES += box2d_static
@@ -48,6 +49,7 @@ LOCAL_WHOLE_STATIC_LIBRARIES += PluginProtocolStatic
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,.)
+#引入模块库
 $(call import-module,audio/android)
 $(call import-module,protocols/android)
 

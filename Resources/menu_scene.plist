@@ -7,7 +7,7 @@
             <key>credits.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{436,645},{215,90}}</string>
+                <string>{{645,186},{215,90}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -20,7 +20,7 @@
             <key>license.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{219,645},{215,90}}</string>
+                <string>{{645,94},{215,90}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -37,16 +37,29 @@
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{641,964}}</string>
                 <key>sourceSize</key>
                 <string>{641,964}</string>
             </dict>
+            <key>recharge.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{862,2},{215,90}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{215,90}}</string>
+                <key>sourceSize</key>
+                <string>{215,90}</string>
+            </dict>
             <key>start_game.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,645},{215,90}}</string>
+                <string>{{645,2},{215,90}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -64,9 +77,9 @@
             <key>realTextureFileName</key>
             <string>menu_scene.png</string>
             <key>size</key>
-            <string>{968,737}</string>
+            <string>{1024,1024}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:db555b7f132f8136b7898992ccf55fb8:1cac3d4496c65b08a797fffbdefaa627:f7a06ab55076f34b936dd5f32b31eb72$</string>
+            <string>$TexturePacker:SmartUpdate:a7f5fd623b71e49fe86fcd016bca7a37:1/1$</string>
             <key>textureFileName</key>
             <string>menu_scene.png</string>
         </dict>

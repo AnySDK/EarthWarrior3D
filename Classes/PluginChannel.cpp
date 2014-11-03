@@ -11,8 +11,10 @@
 #include <android/log.h>
 #include "PluginJniHelper.h"
 #include "PluginChannel.h"
+#include "platform/CCCommon.h"
 
 using namespace anysdk::framework;
+using namespace cocos2d;
 
 #define  LOG_TAG    "PluginChannel"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG,__VA_ARGS__);
@@ -67,10 +69,10 @@ void PluginChannel::loadPlugins()
      * appKey、appSecret、privateKey不能使用Sample中的值，需要从打包工具中游戏管理界面获取，替换
      * oauthLoginServer参数是游戏服务提供的用来做登陆验证转发的接口地址。
      */
-    std::string oauthLoginServer = "http://oauth.qudao.info/api/OauthLoginDemo/Login.php";
-	std::string appKey = "0914CB16-BAEE-790E-808E-3A37B8FFBE3F";
-	std::string appSecret = "62bee0ddb86bdeccb8acd959765041cc";
-	std::string privateKey = "96C273AB03E1A798BA1AD0C38004871F";
+    std::string oauthLoginServer = "http://oauth.anysdk.com/api/OauthLoginDemo/Login.php";
+	std::string appKey = "BC26F841-DAC5-9244-D025-759F49997A28";
+	std::string appSecret = "1dff378a8f254ec8ad4b492cae72381b";
+	std::string privateKey = "696064B29E9A0B7DDBD6FCB88F34A555";
     
     AgentManager::getInstance()->init(appKey,appSecret,privateKey,oauthLoginServer);
     
@@ -84,6 +86,15 @@ void PluginChannel::loadPlugins()
     	AgentManager::getInstance()->getUserPlugin()->setActionListener(this);
     }
     
+    //对支付系统设置监听类
+    LOGD("Load plugins invoked");
+	std::map<std::string , ProtocolIAP*>* _pluginsIAPMap  = AgentManager::getInstance()->getIAPPlugin();
+    std::map<std::string , ProtocolIAP*>::iterator iter;
+    for(iter = _pluginsIAPMap->begin(); iter != _pluginsIAPMap->end(); iter++)
+    {
+    	(iter->second)->setDebugMode(true);
+       	(iter->second)->setResultListener(this);
+    }
     
 }
 
@@ -94,8 +105,72 @@ void PluginChannel::unloadPlugins()
 }
 
 
+void PluginChannel::payment()
+{
+
+	std::map<std::string, std::string> productInfo;
+	std::map<std::string , ProtocolIAP*>* _pluginsIAPMap  = AgentManager::getInstance()->getIAPPlugin();
+	std::map<std::string , ProtocolIAP*>::iterator it = _pluginsIAPMap->begin();
+	if(_pluginsIAPMap)
+	{
+		productInfo["Product_Price"] = "1";
+		productInfo["Product_Id"] = "1";
+		productInfo["Product_Name"] = "豌豆荚测试a1";
+		productInfo["Server_Id"] = "13";
+		productInfo["Product_Count"] = "1";
+		productInfo["Role_Id"] = "1";
+		productInfo["Role_Name"] = "1";
+		productInfo["Role_Grade"] = "1";
+		productInfo["Role_Balance"] = "1";
+		if(_pluginsIAPMap->size() == 1)
+		{
+
+			(it->second)->setDebugMode(true);
+			(it->second)->payForProduct(productInfo);
+		}
+		else if(_pluginsIAPMap->size() > 1)
+		{
+
+			//多支付，游戏开发商自己处理相关UI及界面
+		}
+	}
+
+}
+
+void PluginChannel::onPayResult(PayResultCode ret, const char* msg, TProductInfo info)
+{
+	  std::string temp = "fail";
+		switch(ret)
+		{
+		case kPaySuccess://支付成功回调
+			temp = "Success";
+			MessageBox("Succeed","Payment");
+			break;
+		case kPayFail://支付失败回调
+			MessageBox("Fail","Payment");
+			break;
+		case kPayCancel://支付取消回调
+			MessageBox("Cancel","Payment");
+			break;
+		case kPayNetworkError://支付超时回调
+			MessageBox("NetworkError","Payment" );
+			break;
+		case kPayProductionInforIncomplete://支付超时回调
+			MessageBox("ProductionInforIncomplete","Payment"  );
+			break;
+		/**
+		 * 新增加:正在进行中回调
+		 * 支付过程中若SDK没有回调结果，就认为支付正在进行中
+		 * 游戏开发商可让玩家去判断是否需要等待，若不等待则进行下一次的支付
+		 */
+		case kPayNowPaying:
+			break;
+		default:
+			break;
+		}
 
 
+}
 void PluginChannel::login()
 {
 	if(AgentManager::getInstance()->getUserPlugin())
@@ -124,9 +199,13 @@ void PluginChannel::onActionResult(ProtocolUser* pPlugin, UserActionResultCode c
             break;
         case kLoginSuccess://登陆成功回调
             break;
-        case kLoginNetworkError://登陆失败回调
+
         case kLoginCancel://登陆取消回调
+        	MessageBox("Cancel","Login");
+        	break;
+        case kLoginNetworkError://登陆失败回调
         case kLoginFail://登陆失败回调
+        	MessageBox("Fail","Login");
             break;
         case kLogoutSuccess://登出成功回调
             break;
