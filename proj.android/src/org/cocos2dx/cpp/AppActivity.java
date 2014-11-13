@@ -79,6 +79,4 @@ public class AppActivity extends Cocos2dxActivity {
 		super.onStop();
 	}
 	
-	private native void nativeInitPlugin(); 
-	
 }

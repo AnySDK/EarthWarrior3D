@@ -12,6 +12,7 @@
 #include "PluginJniHelper.h"
 #include "PluginChannel.h"
 #include "platform/CCCommon.h"
+#include "cocos2d.h"
 
 using namespace anysdk::framework;
 using namespace cocos2d;
@@ -20,15 +21,9 @@ using namespace cocos2d;
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG,__VA_ARGS__);
 extern "C"
 {
-    
     JNIEXPORT void JNICALL Java_org_cocos2dx_cpp_wrapper_nativeInitPlugins(JNIEnv*  env, jobject thiz)
     {
         PluginChannel::getInstance()->loadPlugins();
-    }
-    
-    JNIEXPORT void JNICALL Java_org_cocos2dx_cpp_wrapper_nativeUnLoadPlugins(JNIEnv*  env, jobject thiz)
-    {
-        PluginChannel::purge();
     }
 }
 PluginChannel* PluginChannel::_pInstance = NULL;
@@ -41,6 +36,7 @@ PluginChannel::PluginChannel()
 
 PluginChannel::~PluginChannel()
 {
+    destroy();
     unloadPlugins();
 }
 
@@ -74,21 +70,23 @@ void PluginChannel::loadPlugins()
 	std::string appSecret = "1dff378a8f254ec8ad4b492cae72381b";
 	std::string privateKey = "696064B29E9A0B7DDBD6FCB88F34A555";
     
-    AgentManager::getInstance()->init(appKey,appSecret,privateKey,oauthLoginServer);
+    _agent = AgentManager::getInstance();
+    _agent->init(appKey,appSecret,privateKey,oauthLoginServer);
     
     //使用框架中代理类进行插件初始化
-    AgentManager::getInstance()->loadALLPlugin();
+    _agent->loadALLPlugin();
     
     //对用户系统设置监听类
-    if(AgentManager::getInstance()->getUserPlugin())
+    _pluginUser = _agent->getUserPlugin();
+    if(_pluginUser)
     {
-		AgentManager::getInstance()->getUserPlugin()->setDebugMode(true);
-    	AgentManager::getInstance()->getUserPlugin()->setActionListener(this);
+		_pluginUser->setDebugMode(true);
+    	_pluginUser->setActionListener(this);
     }
     
     //对支付系统设置监听类
     LOGD("Load plugins invoked");
-	std::map<std::string , ProtocolIAP*>* _pluginsIAPMap  = AgentManager::getInstance()->getIAPPlugin();
+	_pluginsIAPMap  = _agent->getIAPPlugin();
     std::map<std::string , ProtocolIAP*>::iterator iter;
     for(iter = _pluginsIAPMap->begin(); iter != _pluginsIAPMap->end(); iter++)
     {
@@ -101,18 +99,15 @@ void PluginChannel::loadPlugins()
 void PluginChannel::unloadPlugins()
 {
     LOGD("Unload plugins invoked");
-    AgentManager::getInstance()->unloadALLPlugin();
+    _agent->unloadALLPlugin();
 }
 
 
 void PluginChannel::payment()
 {
-
-	std::map<std::string, std::string> productInfo;
-	std::map<std::string , ProtocolIAP*>* _pluginsIAPMap  = AgentManager::getInstance()->getIAPPlugin();
-	std::map<std::string , ProtocolIAP*>::iterator it = _pluginsIAPMap->begin();
 	if(_pluginsIAPMap)
 	{
+        std::map<std::string, std::string> productInfo;
 		productInfo["Product_Price"] = "1";
 		productInfo["Product_Id"] = "1";
 		productInfo["Product_Name"] = "豌豆荚测试a1";
@@ -122,6 +117,8 @@ void PluginChannel::payment()
 		productInfo["Role_Name"] = "1";
 		productInfo["Role_Grade"] = "1";
 		productInfo["Role_Balance"] = "1";
+
+        std::map<std::string , ProtocolIAP*>::iterator it = _pluginsIAPMap->begin();
 		if(_pluginsIAPMap->size() == 1)
 		{
 
@@ -155,7 +152,7 @@ void PluginChannel::onPayResult(PayResultCode ret, const char* msg, TProductInfo
 		case kPayNetworkError://支付超时回调
 			MessageBox("NetworkError","Payment" );
 			break;
-		case kPayProductionInforIncomplete://支付超时回调
+		case kPayProductionInforIncomplete://支付信息提供不完全回调
 			MessageBox("ProductionInforIncomplete","Payment"  );
 			break;
 		/**
@@ -173,17 +170,17 @@ void PluginChannel::onPayResult(PayResultCode ret, const char* msg, TProductInfo
 }
 void PluginChannel::login()
 {
-	if(AgentManager::getInstance()->getUserPlugin())
+	if(_pluginUser)
 	{
-		AgentManager::getInstance()->getUserPlugin()->login();
+		_pluginUser->login();
 	}
 }
 
 bool PluginChannel::isLogined()
 {
-	if(AgentManager::getInstance()->getUserPlugin())
+	if(_pluginUser)
 	{
-		return AgentManager::getInstance()->getUserPlugin()->isLogined();
+		return _pluginUser->isLogined();
 	}
     return false;
 }
@@ -203,7 +200,7 @@ void PluginChannel::onActionResult(ProtocolUser* pPlugin, UserActionResultCode c
         case kLoginCancel://登陆取消回调
         	MessageBox("Cancel","Login");
         	break;
-        case kLoginNetworkError://登陆失败回调
+        case kLoginNetworkError://登陆网络出错回调
         case kLoginFail://登陆失败回调
         	MessageBox("Fail","Login");
             break;
@@ -218,6 +215,8 @@ void PluginChannel::onActionResult(ProtocolUser* pPlugin, UserActionResultCode c
         case kPausePage://暂停界面回调
             break;
         case kExitPage://退出游戏回调
+            purge();
+            Director::getInstance()->end();
             break;
         case kAntiAddictionQuery://防沉迷查询回调
             break;
@@ -225,7 +224,7 @@ void PluginChannel::onActionResult(ProtocolUser* pPlugin, UserActionResultCode c
             break;
         case kAccountSwitchSuccess://切换账号成功回调
             break;
-        case kAccountSwitchFail://切换账号成功回调
+        case kAccountSwitchFail://切换账号失败回调
             break;
         default:
             break;
@@ -233,12 +232,31 @@ void PluginChannel::onActionResult(ProtocolUser* pPlugin, UserActionResultCode c
     
 }
 
+std::string PluginChannel::getChannelId()
+{
+    return _agent->getChannelId();
+}
+
 std::string PluginChannel::getUserId()
 {
-	if(AgentManager::getInstance()->getUserPlugin())
+	if(_pluginUser)
 	{
-        
-        
-		return AgentManager::getInstance()->getUserPlugin()->getUserID();
+		return _pluginUser->getUserID();
 	}
+}
+
+void PluginChannel::destroy()
+{
+    if(_pluginUser && _pluginUser->isFunctionSupported("destroy"))
+    {
+        _pluginUser->callFuncWithParam("destroy",NULL);
+    }
+}
+
+void PluginChannel::exit()
+{
+    if(_pluginUser && _pluginUser->isFunctionSupported("exit"))
+    {
+        _pluginUser->callFuncWithParam("exit",NULL);
+    }
 }

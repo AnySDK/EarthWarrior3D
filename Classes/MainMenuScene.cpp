@@ -156,6 +156,8 @@ bool MainMenuScene::init()
     menu->setPosition(origin);
     this->addChild(menu,3);
     
+	setKeyboardEnabled(true);
+
     //support controller
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     auto controllListener = EventListenerController::create();
@@ -166,6 +168,18 @@ bool MainMenuScene::init()
 #endif
     
     return true;
+}
+
+void MainMenuScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
+{
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	switch(keyCode)
+	{
+		case EventKeyboard::KeyCode::KEY_BACK:
+			PluginChannel::getInstance()->exit();
+			break;
+	}
+#endif
 }
 
 //controller connect
