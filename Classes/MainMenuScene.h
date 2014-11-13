@@ -42,7 +42,7 @@ public:
     CREATE_FUNC(MainMenuScene);
     void update(float dt);
     
-    
+    virtual void onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
     void onKeyUp(Controller *controller, int keyCode,Event *event);
     void onConnected(Controller* controller, Event* event);
 private:

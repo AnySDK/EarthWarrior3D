@@ -47,16 +47,21 @@ public:
    	//支付回调函数
     virtual void onPayResult(PayResultCode ret, const char* msg, TProductInfo info);
 
-
-
     //获取渠道id
     std::string getChannelId();
+
+    //sdk退出
+    void destroy();
+
+    //渠道退出界面调用
+    void exit();
 
 private:
     PluginChannel();
     virtual ~ PluginChannel();
     static PluginChannel* _pInstance;
-    
-    
+    AgentManager* _agent;
+    ProtocolUser* _pluginUser;
+    std::map<std::string , ProtocolIAP*>* _pluginsIAPMap;
     
 };

@@ -8,13 +8,5 @@ import android.view.LayoutInflater;
 
 public class wrapper {
 	public static native void nativeInitPlugins();
-	public static native void nativeUnLoadPlugins();
-	public static native void nativeLogin();
 	
-	
-	
-	
-	
-	
-
 }
