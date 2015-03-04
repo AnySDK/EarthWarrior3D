@@ -28,7 +28,7 @@
 
 ###3.2 项目搭建
 ####1.将AnySDK的Framework导入项目  
-打开之前下载好的AnySDK文件夹，在AnySDK_Framework_C++里有三个文件夹，查看项目工程里的Android.mk里的STL库类型APP_STL := gnustl_static，所以这里要使用的就是protocols_gnustl_static文件夹。  
+打开之前下载好的AnySDK文件夹，在AnySDK_Framework_C++里有三个文件夹，查看项目工程里的`Android.mk`(这里应该是proj.android/jni/Application.mk这个文件)里的STL库类型APP_STL := gnustl_static，所以这里要使用的就是protocols_gnustl_static文件夹。  
 <img src="md_img/img1.png">  
 
 将protocols_gnustl_static文件夹复制到EarthWarrior3D的proj.android目录下，重命名为protocols。然后将其中的res文件夹里的东西放到proj.android的res目录里。
